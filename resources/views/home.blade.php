@@ -254,6 +254,10 @@ document.getElementById('delete-popup').addEventListener('click', (e) => {
                     {{ $chirp->user->name ?? 'User' }}
                 </p>
 
+                <p class="text-xs text-gray-500">
+    {{ $chirp->created_at->diffForHumans() }}
+                </p>
+
                 <p class="text-lg">
                     {{ $chirp->message }}
                 </p>
