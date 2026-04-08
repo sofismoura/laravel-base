@@ -6,30 +6,21 @@ use App\Models\Chirp;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ChirpController; // Adicionado para o delete funcionar via Controller
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-// 🏠 HOME
+// Home
 Route::get('/', function () {
     $chirps = Chirp::with('user')->latest()->get();
     return view('home', compact('chirps'));
-});
+})->name('chirps.index');
 
-
-// ==========================
-// 📝 SIGNUP
-// ==========================
-
+//cadastro
 // abrir página
 Route::get('/signup', function () {
     return view('signup');
 });
 
-// salvar usuário + FOTO
+// salvar usuário + foto
 Route::post('/signup', function (Request $request) {
 
     $request->validate([
@@ -41,7 +32,7 @@ Route::post('/signup', function (Request $request) {
 
     $path = null;
 
-    // 📸 salvar imagem
+    // salvar imagem
     if ($request->hasFile('photo')) {
         $path = $request->file('photo')->store('photos', 'public');
     }
@@ -53,17 +44,14 @@ Route::post('/signup', function (Request $request) {
         'photo' => $path
     ]);
 
-    // 🔥 login automático
+    // login automático
     Auth::login($user);
 
     return redirect('/');
 });
 
 
-// ==========================
-// 🔐 LOGIN
-// ==========================
-
+// login
 // abrir página
 Route::get('/login', function () {
     return view('login');
@@ -85,9 +73,7 @@ Route::post('/login', function (Request $request) {
 });
 
 
-// ==========================
-// 🔓 LOGOUT
-// ==========================
+// logout
 
 Route::post('/logout', function (Request $request) {
     Auth::logout();
@@ -99,25 +85,32 @@ Route::post('/logout', function (Request $request) {
 });
 
 
-// ==========================
-// 🐦 CHIRPS (POST)
-// ==========================
+// chirps (posts)
 
 Route::post('/chirps', function (Request $request) {
 
-    // 🔒 precisa estar logado
+    // precisa estar logado
     if (!auth()->check()) {
         return redirect('/login');
     }
 
-    $request->validate([
-        'message' => 'required|max:255'
+    // Validação atualizada para aceitar imagem
+    $validated = $request->validate([
+        'message' => 'required|max:255',
+        'image' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:20480',
     ]);
 
-    Chirp::create([
-        'user_id' => auth()->id(), // 👤 usuário real
-        'message' => $request->message
-    ]);
+    // Lógica para salvar a imagem do post (usando a pasta photos que você já validou)
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('photos', 'public');
+        $validated['image'] = $path;
+    }
+
+    // Criar o Chirp com os dados validados (incluindo a imagem se houver)
+    $request->user()->chirps()->create($validated);
 
     return redirect('/');
 });
+
+// Rota para excluir chirp
+Route::delete('/chirps/{chirp}', [ChirpController::class, 'destroy'])->name('chirps.destroy')->middleware('auth');

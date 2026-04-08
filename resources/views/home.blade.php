@@ -35,12 +35,10 @@
 
 <body>
 
-<!-- MÚSICA -->
 <audio id="music" preload="auto">
     <source src="https://www.myinstants.com/media/sounds/south-park-theme-song.mp3" type="audio/mpeg">
 </audio>
 
-<!--  NAVBAR -->
 <nav class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur border-b-4 border-black shadow">
     <div class="flex justify-between items-center px-6 py-4">
 
@@ -57,10 +55,9 @@
             </button>
 
             <button id="playBtn"
-                class="bg-yellow-300 text-black border-2 border-black px-3 py-1 rounded-full">
+                 class="bg-yellow-300 text-black border-2 border-black px-3 py-1 rounded-full">
                  Música
             </button>
-
             <a href="/login"
                class="bg-yellow-300 text-black border-2 border-black px-3 py-1 rounded-full">
                Login
@@ -97,9 +94,7 @@
     </div>
 </nav>
 
- <!-- Popup para assistir -->
-
-<div id="age-popup" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+ <div id="age-popup" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0px_black] p-8 max-w-md w-full text-center relative overflow-hidden">
         
         <img src="/images/southparklogo.png" class="absolute -top-10 -right-10 h-32 opacity-10 rotate-12 pointer-events-none">
@@ -123,8 +118,6 @@
 
     </div>
 </div>
-
-<!-- Funçao para aparecer o popup com voz de fundo em java script (não esquecer de separar no js public) -->
 
 <script>
     const assistirBtn = document.getElementById('assitir');
@@ -179,24 +172,19 @@
     });
 </script>
 
-<!--  Neve de fundo -->
 <div id="snow-container" class="fixed inset-0 pointer-events-none z-0"></div>
 
-<!-- Imagem do background -->
 <div class="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat relative z-0 pt-28"
      style="background-image: url('/images/southpark.png');">
 
-    <!-- Fundo mais escuro -->
     <div class="absolute inset-0 bg-black/40 z-0"></div>
 
-    <!-- Conteúdo -->
     <div class="relative z-20 max-w-2xl mx-auto p-6">
 
         <h2 class="text-3xl text-left font-black mb-6 text-white drop-shadow-[2px_2px_6px_black]">
             Latest Chirps
         </h2>
 
-        <!-- Form -->
         <div class="bg-white/90 backdrop-blur border-4 border-black rounded-3xl shadow-[6px_6px_0px_black] p-5 mb-6">
 
             <form method="POST" action="/chirps">
@@ -217,37 +205,51 @@
             </form>
         </div>
 
-        <!-- Posts -->
         @foreach ($chirps as $chirp)
-            <div class="bg-white/90 backdrop-blur border-4 border-black rounded-3xl shadow-[6px_6px_0px_black] p-4 mb-4">
+    <div class="bg-white/90 backdrop-blur border-4 border-black rounded-3xl shadow-[6px_6px_0px_black] p-4 mb-4">
+        <div class="flex gap-3 items-start">
+            
+            <img 
+                src="{{ $chirp->user->photo ? asset('storage/' . $chirp->user->photo) : 'https://api.dicebear.com/7.x/adventurer/svg?seed=' . $chirp->user->id }}"
+                class="w-12 h-12 border-2 border-black rounded-full bg-white object-cover shadow-[2px_2px_0px_black]"
+            >
 
-                <div class="flex gap-3 items-start">
+            <div class="flex-1">
+                <p class="font-bold text-sm uppercase text-black/60">
+                    {{ $chirp->user->name ?? 'User' }}
+                </p>
 
-                    <img 
-    src="{{ $chirp->user->photo ? asset('storage/' . $chirp->user->photo) : 'https://api.dicebear.com/7.x/adventurer/svg?seed=' . $chirp->user->id }}"
-    class="w-12 h-12 border-2 border-black rounded-full bg-white object-cover"
->
+                <p class="text-lg">
+                    {{ $chirp->message }}
+                </p>
 
-                    <div>
-                        <p class="font-bold text-sm">
-                            {{ $chirp->user->name ?? 'User' }}
-                        </p>
-
-                        <p class="text-lg">
-                            {{ $chirp->message }}
-                        </p>
+                {{-- Exibição da imagem do post (quando o upload funcionar) --}}
+                @if($chirp->image)
+                    <div class="mt-2 border-2 border-black rounded-2xl overflow-hidden shadow-[4px_4px_0px_black]">
+                        <img src="{{ asset('storage/' . $chirp->image) }}" class="w-full h-auto object-cover max-h-80">
                     </div>
+                @endif
 
-                </div>
-
+                {{-- Botão de Excluir --}}
+                @if ($chirp->user->is(auth()->user()))
+                    <div class="mt-2 text-right">
+                        <button type="button" 
+                            onclick="openDeleteModal('{{ route('chirps.destroy', $chirp) }}')"
+                            class="text-[10px] font-black uppercase bg-red-500 text-white border-2 border-black px-3 py-1 rounded-md hover:bg-red-700 transition shadow-[2px_2px_0px_black]">
+                            Excluir
+                        </button>
+                    </div>
+                @endif
             </div>
-        @endforeach
+
+        </div>
+    </div>
+@endforeach
 
     </div>
 
 </div>
 
-<!-- script da neve -->
 <script>
 
 function createSnowflake() {
@@ -298,34 +300,91 @@ function embaralhar(array) {
     return lista;
 }
 
-btn.addEventListener("click", () => {
-    //  Se a fila estiver vazia, recarrega e embaralha tudo de novo
+// Função para tocar a próxima música
+function tocarProxima() {
     if (filaDeSons.length === 0) {
-        console.log("Fila vazia! Reembaralhando todos os 11 sons...");
         filaDeSons = embaralhar(sonsOriginais);
     }
-
-    // "Tira" o último som da fila (pop) para tocar
     const proximoSom = filaDeSons.pop();
-
-    // Configura e toca o áudio
-    musicPlayer.pause();
-    musicPlayer.currentTime = 0;
     musicPlayer.src = proximoSom;
     musicPlayer.play();
+    btn.innerText = "⏸️ Pausar (" + (sonsOriginais.length - filaDeSons.length) + "/11)";
+    btn.classList.add('bg-green-400');
+}
 
-    // Feedback visual
-    btn.innerText = "🔊 Tocando (" + (sonsOriginais.length - filaDeSons.length) + "/11)";
-    
-    musicPlayer.onended = () => {
-        btn.innerText = "Música";
-    };
-    
-    console.log("Restam na fila: " + filaDeSons.length);
+// 1. Clique Simples: Play/Pause
+btn.addEventListener("click", () => {
+    if (musicPlayer.src === "") {
+        tocarProxima();
+    } else {
+        if (!musicPlayer.paused) {
+            musicPlayer.pause();
+            btn.innerText = "▶️ Continuar";
+            btn.classList.replace('bg-green-400', 'bg-yellow-300');
+        } else {
+            musicPlayer.play();
+            btn.innerText = "⏸️ Pausar";
+            btn.classList.replace('bg-yellow-300', 'bg-green-400');
+        }
+    }
 });
+
+// 2. Clique Duplo: Pular Música
+btn.addEventListener("dblclick", () => {
+    tocarProxima();
+});
+
+// Resetar quando acabar
+musicPlayer.onended = () => {
+    btn.innerText = "Música";
+    btn.classList.remove('bg-green-400');
+};
+
 </script>
 
-<!-- Footer básico -->
+
+
+<div id="delete-popup" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0px_black] p-8 max-w-md w-full text-center relative">
+        <h3 class="text-2xl font-black mb-4 text-red-600">PERAÍ, CACETE!</h3>
+        <p class="text-lg font-bold mb-6">Você tem certeza que quer apagar essa porcaria, cara? Não tem volta!</p>
+        
+        <div class="flex gap-4 justify-center">
+            <button id="cancel-delete" class="bg-gray-400 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
+                Não, deixa aí
+            </button>
+            <form id="confirm-delete-form" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="bg-red-500 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
+                    Sim, apaga logo!
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Lógica para abrir o modal de exclusão
+    function openDeleteModal(actionUrl) {
+        const modal = document.getElementById('delete-popup');
+        const form = document.getElementById('confirm-delete-form');
+        form.action = actionUrl;
+        modal.classList.remove('hidden');
+    }
+
+    // Fechar modal ao cancelar
+    document.getElementById('cancel-delete').addEventListener('click', () => {
+        document.getElementById('delete-popup').classList.add('hidden');
+    });
+
+    // Fechar modal ao clicar fora dele
+    document.getElementById('delete-popup').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('delete-popup')) {
+            document.getElementById('delete-popup').classList.add('hidden');
+        }
+    });
+</script>
 
 <footer class="bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur border-t-4 border-black shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
     <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
