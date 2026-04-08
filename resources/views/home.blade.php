@@ -43,7 +43,9 @@
     <div class="flex justify-between items-center px-6 py-4">
 
     @php
-    $countNotifications = \App\Models\Notification::where('user_id', auth()->id())->count();
+    $countNotifications = \App\Models\Notification::where('user_id', auth()->id())
+    ->where('read', false)
+    ->count();
 @endphp
         <a href="/" class="flex items-center gap-2 text-xl font-black hover:scale-105 transition">
             <img src="/images/southparklogo.png" class="h-8 w-auto object-contain">
@@ -272,117 +274,79 @@ document.getElementById('delete-popup').addEventListener('click', (e) => {
             </form>
         </div>
 
-        @foreach ($chirps as $chirp)
-    <div class="bg-white/90 backdrop-blur border-4 border-black rounded-3xl shadow-[6px_6px_0px_black] p-4 mb-4">
-        <div class="flex gap-3 items-start">
-            
+       @foreach ($chirps as $chirp)
+    <div id="chirp-{{ $chirp->id }}" class="bg-white/90 backdrop-blur border-4 border-black rounded-3xl shadow-[6px_6px_0px_black] p-5 mb-8 flex flex-col">
+        
+        <div class="flex gap-4 items-start">
             <img 
                 src="{{ $chirp->user->photo ? asset('storage/' . $chirp->user->photo) : 'https://api.dicebear.com/7.x/adventurer/svg?seed=' . $chirp->user->id }}"
-                class="w-12 h-12 border-2 border-black rounded-full bg-white object-cover shadow-[2px_2px_0px_black]"
+                class="w-14 h-14 border-2 border-black rounded-full bg-white object-cover shadow-[2px_2px_0px_black] flex-shrink-0"
             >
 
             <div class="flex-1">
-                <p class="font-bold text-sm uppercase text-black/60">
-                    {{ $chirp->user->name ?? 'User' }}
-                </p>
+                <div class="flex items-center gap-2">
+                    <p class="font-black text-sm uppercase text-black">
+                        {{ $chirp->user->name ?? 'User' }}
+                    </p>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase">
+                        • {{ $chirp->created_at->diffForHumans() }}
+                    </p>
+                </div>
 
-                <p class="text-xs text-gray-500">
-    {{ $chirp->created_at->diffForHumans() }}
-                </p>
-
-                <p class="text-lg">
+                <p class="text-lg mt-1 mb-3 font-medium leading-tight">
                     {{ $chirp->message }}
                 </p>
 
-                <form method="POST" action="/chirps/{{ $chirp->id }}/like">
-    @csrf
+                <form method="POST" action="/chirps/{{ $chirp->id }}/like" class="mb-4">
+                    @csrf
+                    <button class="flex items-center gap-1 group transition">
+                        @if($chirp->likes->where('user_id', auth()->id())->count())
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5 text-red-500 group-hover:scale-110 transition">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.44h.56C12.09 5.01 13.76 4 15.5 4 18 4 20 6 20 8.5 c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:scale-110 transition">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318C5.562 5.074 7.537 5.074 8.78 6.318L12 9.54l3.22-3.222c1.244-1.244 3.219-1.244 4.463 0 1.244 1.244 1.244 3.219 0 4.463L12 21.35l-7.683-7.683 c-1.244-1.244-1.244-3.219 0-4.463z"/>
+                            </svg>
+                        @endif
+                        <span class="text-sm font-bold">{{ $chirp->likes->count() }}</span>
+                    </button>
+                </form>
 
-    <button class="flex items-center gap-1 group transition">
+                <form method="POST" action="/chirps/{{ $chirp->id }}/comment" class="flex gap-2 mb-4">
+                    @csrf
+                    <input type="text" name="message" placeholder="Comentar..."
+                        class="flex-1 border-2 border-black rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <button class="bg-white text-black border-2 border-black px-4 rounded-full font-bold hover:bg-yellow-300 transition">
+                        💬
+                    </button>
+                </form>
 
-        @if($chirp->likes->where('user_id', auth()->id())->count())
-            <!-- CURTIDO -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                 fill="currentColor" 
-                 viewBox="0 0 24 24"
-                 class="w-5 h-5 text-red-500 group-hover:scale-110 transition">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-                2 6 4 4 6.5 4c1.74 0 3.41 1.01 
-                4.22 2.44h.56C12.09 5.01 13.76 4 
-                15.5 4 18 4 20 6 20 8.5 
-                c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-        @else
-            <!-- NÃO CURTIDO -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                 fill="none" 
-                 stroke="currentColor" 
-                 viewBox="0 0 24 24"
-                 class="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:scale-110 transition">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4.318 6.318C5.562 5.074 7.537 5.074 
-                8.78 6.318L12 9.54l3.22-3.222c1.244-1.244 
-                3.219-1.244 4.463 0 1.244 1.244 
-                1.244 3.219 0 4.463L12 21.35l-7.683-7.683
-                c-1.244-1.244-1.244-3.219 0-4.463z"/>
-            </svg>
-        @endif
+                <div class="space-y-2">
+                    @foreach($chirp->comments as $comment)
+                        <div class="bg-black/5 border-2 border-black/10 rounded-2xl p-3 text-sm">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-black uppercase text-[10px]">{{ $comment->user->name }}</span>
+                                <span class="text-gray-500 text-[9px]">• {{ $comment->created_at->diffForHumans() }}</span>
+                            </div>
+                            <p class="text-gray-800">{{ $comment->message }}</p>
+                        </div>
+                    @endforeach
+                </div>
 
-        <span class="text-sm font-bold">
-            {{ $chirp->likes->count() }}
-        </span>
-
-    </button>
-</form>
-
-<!-- 💬 FORM COMENTAR -->
-<form method="POST" action="/chirps/{{ $chirp->id }}/comment" class="mt-3 flex gap-2">
-    @csrf
-    <input type="text" name="message" placeholder="Comentar..."
-        class="flex-1 border-2 border-black rounded-full px-3 py-1 text-sm">
-    
-    <button class="bg-white text-black border-2 border-black px-3 rounded-full font-bold hover:bg-gray-100 transition">
-        💬
-    </button>
-</form>
-
-<!-- 💬 LISTA DE COMENTÁRIOS -->
-<div class="mt-2 space-y-2">
-
-@foreach($chirp->comments as $comment)
-    <div class="bg-gray-100 border-2 border-black rounded-xl p-2 text-sm">
-
-        <span class="font-bold">
-            {{ $comment->user->name }}
-        </span>
-
-        <span class="text-gray-500 text-xs">
-            • {{ $comment->created_at->diffForHumans() }}
-        </span>
-
-        <p>
-            {{ $comment->message }}
-        </p>
-
+                @if ($chirp->user->is(auth()->user()))
+                    <div class="mt-4 text-right">
+                        <button type="button" 
+                            onclick="openDeleteModal('{{ route('chirps.destroy', $chirp) }}')"
+                            class="text-[10px] font-black uppercase bg-red-500 text-white border-2 border-black px-4 py-1.5 rounded-md hover:bg-red-700 transition shadow-[2px_2px_0px_black]">
+                            Excluir Chirp
+                        </button>
+                    </div>
+                @endif
+            </div> 
+        </div> 
     </div>
-@endforeach
-
-</div>
-
-{{-- Botão de Excluir --}}
-@if ($chirp->user->is(auth()->user()))
-    <div class="mt-2 text-right">
-        <button type="button" 
-            onclick="openDeleteModal('{{ route('chirps.destroy', $chirp) }}')"
-            class="text-[10px] font-black uppercase bg-red-500 text-white border-2 border-black px-3 py-1 rounded-md hover:bg-red-700 transition shadow-[2px_2px_0px_black]">
-            Excluir
-        </button>
-    </div>
-@endif
-            </div>
-
-        </div>
-    </div>
-@endforeach
+     @endforeach
 
     </div>
 

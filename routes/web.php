@@ -10,6 +10,16 @@ use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
 
+Route::get('/notifications/{notification}', function (\App\Models\Notification $notification) {
+
+    // marca como lida
+    $notification->update(['read' => true]);
+
+    // redireciona pro post
+    return redirect('/#chirp-' . $notification->chirp_id);
+
+})->middleware('auth');
+
 Route::get('/notifications', function () {
     $notifications = \App\Models\Notification::with('fromUser')->latest()->get();
     return view('notifications', compact('notifications'));
