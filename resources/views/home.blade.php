@@ -33,7 +33,9 @@
     </style>
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen">
+
+<main class="flex-1">
 
 <audio id="music" preload="auto">
     <source src="https://www.myinstants.com/media/sounds/south-park-theme-song.mp3" type="audio/mpeg">
@@ -563,15 +565,15 @@ musicPlayer.onended = () => {
             <p class="text-lg font-bold mb-6">Você tem certeza que quer apagar essa porcaria, cara? Não tem volta!</p>
             
             <div class="flex gap-4 justify-center">
-                <button id="cancel-delete" type="button" class="bg-gray-400 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
-                    Não, deixa aí
+                <button id="cancel-delete" type="button" class="bg-green-500 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
+                    Não
                 </button>
                 
                 <form id="confirm-delete-form" method="POST" action="">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="bg-red-500 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
-                        Sim, apaga logo!
+                        Sim
                     </button>
                 </form>
             </div>
@@ -612,6 +614,8 @@ musicPlayer.onended = () => {
         }
     }
 </script>
+
+</main>
 
 <footer class="bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur border-t-4 border-black shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
     <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">

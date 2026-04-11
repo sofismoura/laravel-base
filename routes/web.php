@@ -12,6 +12,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Notification;
 
+
 Route::get('/notifications/{id}', function ($id) {
 
     $notification = Notification::findOrFail($id);
@@ -25,6 +26,7 @@ Route::get('/notifications/{id}', function ($id) {
 
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->middleware('auth');
 Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth');
+Route::delete('/profile/delete', [ProfileController::class, 'destroy']);
 
 Route::get('/notifications', function () {
 
