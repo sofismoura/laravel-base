@@ -12,6 +12,17 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Notification;
 
+Route::get('/notifications/{id}', function ($id) {
+
+    $notification = Notification::findOrFail($id);
+
+    // 🔥 marca como lida (extra segurança)
+    $notification->update(['read' => true]);
+
+    // 🔥 redireciona pra home com o chirp
+    return redirect('/?chirp=' . $notification->chirp_id);
+});
+
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->middleware('auth');
 Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth');
 

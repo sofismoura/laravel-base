@@ -594,6 +594,25 @@ musicPlayer.onended = () => {
     });
 </script>
 
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const chirpId = urlParams.get('chirp');
+
+    if (chirpId) {
+        const el = document.getElementById('chirp-' + chirpId);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 🔥 destaque visual
+            el.classList.add('ring-4', 'ring-yellow-400');
+
+            setTimeout(() => {
+                el.classList.remove('ring-4', 'ring-yellow-400');
+            }, 3000);
+        }
+    }
+</script>
+
 <footer class="bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur border-t-4 border-black shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
     <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
         
