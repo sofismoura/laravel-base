@@ -153,8 +153,6 @@
     </div>
 </div>
 
-<!-- (todo seu código permanece igual até chegar na PRIMEIRA função openDeleteModal) -->
-
 <script>
     
     // --- LÓGICA POPUP DE IDADE ---
@@ -197,7 +195,7 @@
 
         popupContent.innerHTML = `
             <p class="text-2xl font-black mb-3 text-red-600">SÉRIO?! VOCÊ É BURRO?</p>
-            <p class="text-lg font-bold mb-8">É só mentir idiota 😭</p>
+            <p class="text-lg font-bold mb-8">É só mentir idiota, eu tô pouco me fudendo! Vai lá assistir seu babaca!</p>
             <div class="flex justify-center">
                 <button id="age-redirect-anyway" class="bg-yellow-300 text-black border-2 border-black px-6 py-2 rounded-full font-bold">
                     Tá bom😭
@@ -297,62 +295,162 @@ document.getElementById('delete-popup').addEventListener('click', (e) => {
                     {{ $chirp->message }}
                 </p>
 
-                <form method="POST" action="/chirps/{{ $chirp->id }}/like" class="mb-4">
-                    @csrf
-                    <button class="flex items-center gap-1 group transition">
-                        @if($chirp->likes->where('user_id', auth()->id())->count())
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5 text-red-500 group-hover:scale-110 transition">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.44h.56C12.09 5.01 13.76 4 15.5 4 18 4 20 6 20 8.5 c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        @else
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:scale-110 transition">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318C5.562 5.074 7.537 5.074 8.78 6.318L12 9.54l3.22-3.222c1.244-1.244 3.219-1.244 4.463 0 1.244 1.244 1.244 3.219 0 4.463L12 21.35l-7.683-7.683 c-1.244-1.244-1.244-3.219 0-4.463z"/>
-                            </svg>
-                        @endif
-                        <span class="text-sm font-bold">{{ $chirp->likes->count() }}</span>
-                    </button>
-                </form>
+               <button onclick="likeChirp({{ $chirp->id }})"
+    class="flex items-center gap-1 group transition mb-4">
+    
+    <svg id="heart-{{ $chirp->id }}"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="w-5 h-5 transition
+        {{ $chirp->likes->where('user_id', auth()->id())->count() ? 'text-red-500 fill-current' : 'text-gray-600' }}">
+        
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+        2 6 4 4 6.5 4c1.74 0 3.41 1.01 
+        4.22 2.44h.56C12.09 5.01 13.76 4 
+        15.5 4 18 4 20 6 20 8.5 
+        c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
 
-                <form method="POST" action="/chirps/{{ $chirp->id }}/comment" class="flex gap-2 mb-4">
-                    @csrf
-                    <input type="text" name="message" placeholder="Comentar..."
-                        class="flex-1 border-2 border-black rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                    <button class="bg-white text-black border-2 border-black px-4 rounded-full font-bold hover:bg-yellow-300 transition">
-                        💬
-                    </button>
-                </form>
+    <span id="like-count-{{ $chirp->id }}" class="text-sm font-bold">
+        {{ $chirp->likes->count() }}
+    </span>
+</button>
 
-                <div class="space-y-2">
-                    @foreach($chirp->comments as $comment)
-                        <div class="bg-black/5 border-2 border-black/10 rounded-2xl p-3 text-sm">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="font-black uppercase text-[10px]">{{ $comment->user->name }}</span>
-                                <span class="text-gray-500 text-[9px]">• {{ $comment->created_at->diffForHumans() }}</span>
-                            </div>
-                            <p class="text-gray-800">{{ $comment->message }}</p>
-                        </div>
-                    @endforeach
-                </div>
+<div class="flex gap-2 mb-4">
+    <input type="text" 
+        id="comment-input-{{ $chirp->id }}"
+        placeholder="Comentar..."
+        class="flex-1 border-2 border-black rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
 
-                @if ($chirp->user->is(auth()->user()))
-                    <div class="mt-4 text-right">
-                        <button type="button" 
-                            onclick="openDeleteModal('{{ route('chirps.destroy', $chirp) }}')"
-                            class="text-[10px] font-black uppercase bg-red-500 text-white border-2 border-black px-4 py-1.5 rounded-md hover:bg-red-700 transition shadow-[2px_2px_0px_black]">
-                            Excluir Chirp
-                        </button>
-                    </div>
-                @endif
-            </div> 
-        </div> 
-    </div>
-     @endforeach
-
-    </div>
-
+    <button onclick="commentChirp({{ $chirp->id }})"
+        class="bg-white text-black border-2 border-black px-4 rounded-full font-bold hover:bg-yellow-300 transition">
+        💬
+    </button>
 </div>
 
+                <!-- BOTÃO VER COMENTÁRIOS -->
+<button 
+    onclick="toggleComments({{ $chirp->id }})"
+    class="text-black-600 font-bold text-sm mb-2 hover:underline">
+    Ver comentários ({{ $chirp->comments->count() }})
+</button>
+
+
+<div id="comments-{{ $chirp->id }}" class="hidden space-y-2">
+    @foreach($chirp->comments as $comment)
+        <div class="bg-black/5 border-2 border-black/10 rounded-2xl p-3 text-sm">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="font-black uppercase text-[10px]">
+                    {{ $comment->user->name }}
+                </span>
+                <span class="text-gray-500 text-[9px]">
+                    • {{ $comment->created_at->diffForHumans() }}
+                </span>
+            </div>
+            <p class="text-gray-800">
+                {{ $comment->message }}
+            </p>
+        </div>
+    @endforeach
+</div>
+
+@if ($chirp->user->is(auth()->user()))
+    <div class="mt-4 text-right">
+        <button type="button" 
+            onclick="openDeleteModal('{{ route('chirps.destroy', $chirp) }}')"
+            class="text-[10px] font-black uppercase bg-red-500 text-white border-2 border-black px-4 py-1.5 rounded-md hover:bg-red-700 transition shadow-[2px_2px_0px_black]">
+            Excluir Chirp
+        </button>
+    </div>
+@endif
+
+</div> 
+</div> 
+</div>
+
+@endforeach
+
 <script>
+function likeChirp(id) {
+    fetch(`/chirps/${id}/like`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        // atualiza número
+        document.getElementById(`like-count-${id}`).innerText = data.likes;
+
+        // pega o coração
+        const heart = document.getElementById(`heart-${id}`);
+
+        // troca cor
+        if (data.liked) {
+            heart.classList.add('text-red-500', 'fill-current');
+            heart.classList.remove('text-gray-600');
+        } else {
+            heart.classList.remove('text-red-500', 'fill-current');
+            heart.classList.add('text-gray-600');
+        }
+    });
+
+    heart.classList.add('scale-125');
+setTimeout(() => heart.classList.remove('scale-125'), 150);
+}
+
+function commentChirp(id) {
+    const input = document.getElementById(`comment-input-${id}`);
+    const message = input.value;
+
+    if (!message.trim()) return;
+
+    fetch(`/chirps/${id}/comment`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+    })
+    .then(res => res.json())
+    .then(data => {
+        input.value = "";
+
+        const container = document.getElementById(`comments-${id}`);
+
+        container.classList.remove('hidden'); // abre automático
+
+        container.innerHTML += `
+            <div class="bg-black/5 border-2 border-black/10 rounded-2xl p-3 text-sm">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-black uppercase text-[10px]">${data.user}</span>
+                    <span class="text-gray-500 text-[9px]">agora</span>
+                </div>
+                <p class="text-gray-800">${data.message}</p>
+            </div>
+        `;
+    });
+}
+</script>
+
+<script>
+function toggleComments(chirpId) {
+    const el = document.getElementById('comments-' + chirpId);
+    const btn = event.target;
+
+    el.classList.toggle('hidden');
+
+    if (el.classList.contains('hidden')) {
+        btn.innerText = "Ver comentários";
+    } else {
+        btn.innerText = "Ocultar comentários";
+    }
+}
+
 
 function createSnowflake() {
     const snowflake = document.createElement('div');

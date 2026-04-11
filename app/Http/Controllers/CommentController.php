@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    
     public function store(Request $request, Chirp $chirp)
     {
         $request->validate([
@@ -32,6 +33,9 @@ class CommentController extends Controller
             ]);
         }
 
-        return back();
+        return response()->json([
+    'message' => $request->message,
+    'user' => auth()->user()->name
+]);
     }
 }

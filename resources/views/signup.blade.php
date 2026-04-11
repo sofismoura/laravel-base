@@ -265,11 +265,12 @@ function createSnowflake() {
 setInterval(createSnowflake, 100);
 
 
-// --- 🎵 LÓGICA DE ÁUDIO SEM REPETIÇÃO ---
+/ Lógica dos aúdios sem repetir
+
 const musicPlayer = document.getElementById("music");
 const btn = document.getElementById("playBtn");
 
-// 1. Lista original com os seus 11 arquivos
+//  Lista original com as músicas ou efeitos sonoros
 const sonsOriginais = [
     "{{ asset('audio/som1.mp3') }}",
     "{{ asset('audio/som2.mp3') }}",
@@ -284,7 +285,7 @@ const sonsOriginais = [
     "{{ asset('audio/som11.mp3') }}"
 ];
 
-// 2. Criamos uma cópia que será a nossa "fila de reprodução"
+// Fila de reprodução
 let filaDeSons = [];
 
 // Função para embaralhar a lista (Algoritmo Fisher-Yates)
@@ -297,32 +298,48 @@ function embaralhar(array) {
     return lista;
 }
 
-btn.addEventListener("click", () => {
-    // 3. Se a fila estiver vazia, recarregamos e embaralhamos tudo de novo
+// Função para tocar a próxima música
+function tocarProxima() {
     if (filaDeSons.length === 0) {
-        console.log("Fila vazia! Reembaralhando todos os 11 sons...");
         filaDeSons = embaralhar(sonsOriginais);
     }
-
-    // 4. "Tira" o último som da fila (pop) para tocar
     const proximoSom = filaDeSons.pop();
-
-    // 5. Configura e toca o áudio
-    musicPlayer.pause();
-    musicPlayer.currentTime = 0;
     musicPlayer.src = proximoSom;
     musicPlayer.play();
+    btn.innerText = "⏸️ Pausar (" + (sonsOriginais.length - filaDeSons.length) + "/11)";
+    btn.classList.add('bg-green-400');
+}
 
-    // Feedback visual
-    btn.innerText = "🔊 Tocando (" + (sonsOriginais.length - filaDeSons.length) + "/11)";
-    
-    musicPlayer.onended = () => {
-        btn.innerText = "Música";
-    };
-    
-    console.log("Restam na fila: " + filaDeSons.length);
+// 1. Clique Simples: Play/Pause
+btn.addEventListener("click", () => {
+    if (musicPlayer.src === "") {
+        tocarProxima();
+    } else {
+        if (!musicPlayer.paused) {
+            musicPlayer.pause();
+            btn.innerText = "▶️ Continuar";
+            btn.classList.replace('bg-green-400', 'bg-yellow-300');
+        } else {
+            musicPlayer.play();
+            btn.innerText = "⏸️ Pausar";
+            btn.classList.replace('bg-yellow-300', 'bg-green-400');
+        }
+    }
 });
+
+// 2. Clique Duplo: Pular Música
+btn.addEventListener("dblclick", () => {
+    tocarProxima();
+});
+
+// Resetar quando acabar
+musicPlayer.onended = () => {
+    btn.innerText = "Música";
+    btn.classList.remove('bg-green-400');
+};
+
 </script>
+
 
 </body>
 </html>

@@ -9,31 +9,23 @@ use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
-    public function toggle(Chirp $chirp)
+public function toggle(Chirp $chirp)
 {
-    $like = Like::where('user_id', Auth::id())
-        ->where('chirp_id', $chirp->id)
-        ->first();
+    $like = $chirp->likes()->where('user_id', auth()->id())->first();
 
     if ($like) {
-        $like->delete(); // descurtir
+        $like->delete();
+        $liked = false;
     } else {
-        Like::create([
-            'user_id' => Auth::id(),
-            'chirp_id' => $chirp->id
+        $chirp->likes()->create([
+            'user_id' => auth()->id()
         ]);
-
-        // 🔔 notificação
-        if ($chirp->user_id != Auth::id()) {
-            Notification::create([
-                'user_id' => $chirp->user_id,
-                'from_user_id' => Auth::id(),
-                'type' => 'like',
-                'chirp_id' => $chirp->id
-            ]);
-        }
+        $liked = true;
     }
 
-    return back();
+    return response()->json([
+        'likes' => $chirp->likes()->count(),
+        'liked' => $liked
+    ]);
 }
 }

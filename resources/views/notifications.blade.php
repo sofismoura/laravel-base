@@ -125,6 +125,117 @@
     </div>
 </nav>
 
+<div id="age-popup" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0px_black] p-8 max-w-md w-full text-center relative overflow-hidden">
+        
+        <img src="/images/southparklogo.png" class="absolute -top-10 -right-10 h-32 opacity-10 rotate-12 pointer-events-none">
+
+        <h3 class="text-3xl font-black mb-6 text-black drop-shadow-[1px_1px_0px_white]">
+            PERGUNTA SÉRIA!
+        </h3>
+
+        <div id="popup-content">
+            <p class="text-xl font-bold mb-8">Você tem idade para assistir isso, cara?</p>
+            
+            <div class="flex gap-4 justify-center">
+                <button id="age-yes" class="bg-green-500 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
+                    Sim, sou adulto!
+                </button>
+                <button id="age-no" class="bg-red-500 text-white border-2 border-black px-6 py-2 rounded-full font-bold hover:scale-105 transition shadow-[4px_4px_0px_black]">
+                    Não... sou criancinha
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    
+    // --- LÓGICA POPUP DE IDADE ---
+    const assistirBtn = document.getElementById('assitir');
+    const agePopup = document.getElementById('age-popup');
+    const popupContent = document.getElementById('popup-content');
+    const targetUrl = 'https://www.southparkstudios.com.br/';
+
+    const somIdade = new Audio("{{ asset('audio/idade.mp3') }}");
+    const somBurro = new Audio("{{ asset('audio/burro.mp3') }}");
+    const somExcluir = new Audio("{{ asset('audio/excluir.mp3') }}");
+
+    function openDeleteModal(actionUrl) {
+    const modal = document.getElementById('delete-popup');
+    const form = document.getElementById('confirm-delete-form');
+
+    form.action = actionUrl;
+
+    // 🔊 toca o som ao abrir (SÓ aqui)
+    somExcluir.currentTime = 0;
+    somExcluir.play();
+
+    modal.classList.remove('hidden');
+}
+
+    assistirBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        agePopup.classList.remove('hidden');
+        somIdade.currentTime = 0;
+        somIdade.play();
+    });
+
+    document.getElementById('age-yes').addEventListener('click', () => {
+        window.location.href = targetUrl;
+    });
+
+    document.getElementById('age-no').addEventListener('click', () => {
+        somBurro.currentTime = 0;
+        somBurro.play();
+
+        popupContent.innerHTML = `
+            <p class="text-2xl font-black mb-3 text-red-600">SÉRIO?! VOCÊ É BURRO?</p>
+            <p class="text-lg font-bold mb-8">É só mentir idiota, eu tô pouco me fudendo! Vai lá assistir seu babaca!</p>
+            <div class="flex justify-center">
+                <button id="age-redirect-anyway" class="bg-yellow-300 text-black border-2 border-black px-6 py-2 rounded-full font-bold">
+                    Tá bom😭
+                </button>
+            </div>
+        `;
+
+        document.getElementById('age-redirect-anyway').onclick = () => {
+            window.location.href = targetUrl;
+        };
+    });
+
+    agePopup.addEventListener('click', (e) => {
+        if (e.target === agePopup) agePopup.classList.add('hidden');
+    });
+
+    function openDeleteModal(actionUrl) {
+    const modal = document.getElementById('delete-popup');
+    const form = document.getElementById('confirm-delete-form');
+
+    form.action = actionUrl;
+
+    // 🔊 toca o som ao abrir
+    somExcluir.currentTime = 0;
+    somExcluir.play();
+
+    modal.classList.remove('hidden');
+}
+
+// Fechar modal ao cancelar (SEM SOM)
+document.getElementById('cancel-delete').addEventListener('click', () => {
+    document.getElementById('delete-popup').classList.add('hidden');
+});
+
+// Fechar clicando fora
+document.getElementById('delete-popup').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('delete-popup')) {
+        document.getElementById('delete-popup').classList.add('hidden');
+    }
+});
+
+</script>
+
 <!-- ❄️ NEVE -->
 <div id="snow-container" class="fixed inset-0 pointer-events-none z-0"></div>
 
@@ -198,6 +309,83 @@ function createSnowflake() {
     setTimeout(() => snowflake.remove(), 10000);
 }
 setInterval(createSnowflake, 100);
+</script>
+
+<script>
+    
+// Lógica dos aúdios sem repetir
+
+const musicPlayer = document.getElementById("music");
+const btn = document.getElementById("playBtn");
+
+//  Lista original com as músicas ou efeitos sonoros
+const sonsOriginais = [
+    "{{ asset('audio/som1.mp3') }}",
+    "{{ asset('audio/som2.mp3') }}",
+    "{{ asset('audio/som3.mp3') }}",
+    "{{ asset('audio/som4.mp3') }}",
+    "{{ asset('audio/som5.mp3') }}",
+    "{{ asset('audio/som6.mp3') }}",
+    "{{ asset('audio/som7.mp3') }}",
+    "{{ asset('audio/som8.mp3') }}",
+    "{{ asset('audio/som9.mp3') }}",
+    "{{ asset('audio/som10.mp3') }}",
+    "{{ asset('audio/som11.mp3') }}"
+];
+
+// Fila de reprodução
+let filaDeSons = [];
+
+// Função para embaralhar a lista (Algoritmo Fisher-Yates)
+function embaralhar(array) {
+    let lista = [...array];
+    for (let i = lista.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
+    return lista;
+}
+
+// Função para tocar a próxima música
+function tocarProxima() {
+    if (filaDeSons.length === 0) {
+        filaDeSons = embaralhar(sonsOriginais);
+    }
+    const proximoSom = filaDeSons.pop();
+    musicPlayer.src = proximoSom;
+    musicPlayer.play();
+    btn.innerText = "⏸️ Pausar (" + (sonsOriginais.length - filaDeSons.length) + "/11)";
+    btn.classList.add('bg-green-400');
+}
+
+// 1. Clique Simples: Play/Pause
+btn.addEventListener("click", () => {
+    if (musicPlayer.src === "") {
+        tocarProxima();
+    } else {
+        if (!musicPlayer.paused) {
+            musicPlayer.pause();
+            btn.innerText = "▶️ Continuar";
+            btn.classList.replace('bg-green-400', 'bg-yellow-300');
+        } else {
+            musicPlayer.play();
+            btn.innerText = "⏸️ Pausar";
+            btn.classList.replace('bg-yellow-300', 'bg-green-400');
+        }
+    }
+});
+
+// 2. Clique Duplo: Pular Música
+btn.addEventListener("dblclick", () => {
+    tocarProxima();
+});
+
+// Resetar quando acabar
+musicPlayer.onended = () => {
+    btn.innerText = "Música";
+    btn.classList.remove('bg-green-400');
+};
+
 </script>
 
 </body>
