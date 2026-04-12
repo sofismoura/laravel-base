@@ -66,6 +66,11 @@
                  Música
             </button>
 
+             <a href="{{ route('about') }}" 
+   class="bg-yellow-300 text-black border-2 border-black px-3 py-1 rounded-full">
+    Sobre
+</a>
+
             <a href="/login"
                class="bg-yellow-300 text-black border-2 border-black px-3 py-1 rounded-full">
                Login

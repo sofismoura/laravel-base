@@ -12,6 +12,10 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Notification;
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
 
 Route::get('/notifications/{id}', function ($id) {
 
