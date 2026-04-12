@@ -17,44 +17,41 @@ Route::get('/about', function () {
 })->name('about');
 
 
-Route::get('/notifications/{id}', function ($id) {
-
-    $notification = Notification::findOrFail($id);
-
-    // 🔥 marca como lida (extra segurança)
-    $notification->update(['read' => true]);
-
-    // 🔥 redireciona pra home com o chirp
-    return redirect('/?chirp=' . $notification->chirp_id);
-});
 
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->middleware('auth');
 Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth');
 Route::delete('/profile/delete', [ProfileController::class, 'destroy']);
 
-Route::get('/notifications', function () {
 
-    $notifications = \App\Models\Notification::where('user_id', auth()->id())
+//notificações
+// 🔔 LISTA DE NOTIFICAÇÕES
+Route::get('/notifications', function () {
+    $notifications = \App\Models\Notification::with('fromUser')
+        ->where('user_id', auth()->id())
         ->latest()
         ->get();
 
-    \App\Models\Notification::where('user_id', auth()->id())
-        ->where('read', false)
-        ->update(['read' => true]);
-
-    return view('notifications', compact('notifications'));
-
-})->middleware('auth');
-
-Route::get('/notifications', function () {
-    $notifications = \App\Models\Notification::with('fromUser')->latest()->get();
     return view('notifications', compact('notifications'));
 })->middleware('auth');
 
-//notificações
-Route::get('/notifications', function () {
-    $notifications = \App\Models\Notification::latest()->get();
-    return view('notifications', compact('notifications'));
+
+// 🔔 CLICAR NA NOTIFICAÇÃO
+Route::get('/notifications/{id}', function ($id) {
+
+    $notification = \App\Models\Notification::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    $notification->update(['read' => true]);
+
+    // 🔥 se for comentário → vai pro comentário
+    if ($notification->type === 'comment' && $notification->comment_id) {
+        return redirect('/#comment-' . $notification->comment_id);
+    }
+
+    // 👍 se for like → vai pro post
+    return redirect('/#chirp-' . $notification->chirp_id);
+
 })->middleware('auth');
 
 //comentário

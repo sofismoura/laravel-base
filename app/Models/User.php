@@ -61,4 +61,9 @@ public function comments()
 {
     return $this->hasMany(\App\Models\Comment::class);
 }
+
+public function notifications()
+{
+    return $this->hasMany(Notification::class);
+}
 }

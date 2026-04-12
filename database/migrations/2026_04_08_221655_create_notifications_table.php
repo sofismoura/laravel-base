@@ -14,6 +14,7 @@ return new class extends Migration
     Schema::create('notifications', function (Blueprint $table) {
         $table->id();
 
+        $table->foreignId('comment_id')->nullable();
         $table->foreignId('user_id'); // quem recebe
         $table->foreignId('from_user_id'); // quem fez a ação
         $table->string('type'); // like ou comment

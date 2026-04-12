@@ -20,7 +20,18 @@ public function toggle(Chirp $chirp)
         $chirp->likes()->create([
             'user_id' => auth()->id()
         ]);
+
         $liked = true;
+
+        // 🔔 CRIAR NOTIFICAÇÃO
+        if ($chirp->user_id != auth()->id()) {
+            Notification::create([
+                'user_id' => $chirp->user_id,
+                'from_user_id' => auth()->id(),
+                'type' => 'like',
+                'chirp_id' => $chirp->id
+            ]);
+        }
     }
 
     return response()->json([

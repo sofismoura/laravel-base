@@ -17,20 +17,21 @@ class CommentController extends Controller
             'message' => 'required|max:255'
         ]);
 
-        Comment::create([
-            'message' => $request->message,
-            'user_id' => Auth::id(),
-            'chirp_id' => $chirp->id
-        ]);
+       $comment = Comment::create([
+    'message' => $request->message,
+    'user_id' => Auth::id(),
+    'chirp_id' => $chirp->id
+]);
 
         // 🔔 só notifica se NÃO for você mesma
         if ($chirp->user_id != Auth::id()) {
-            Notification::create([
-                'user_id' => $chirp->user_id,
-                'from_user_id' => Auth::id(),
-                'type' => 'comment',
-                'chirp_id' => $chirp->id
-            ]);
+           Notification::create([
+    'user_id' => $chirp->user_id,
+    'from_user_id' => Auth::id(),
+    'type' => 'comment',
+    'chirp_id' => $chirp->id,
+    'comment_id' => $comment->id // 🔥 FALTAVA ISSO
+]);
         }
 
         return response()->json([
