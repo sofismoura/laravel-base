@@ -81,25 +81,40 @@
                     </a>.
                 </p>
 
+                <br>
+
+               <video autoplay loop muted playsinline
+    class="w-32 h-32 mx-auto mt-4 border-4 border-black rounded-2xl  object-cover">
+
+    <source src="{{ asset('videos/eu.mp4') }}" type="video/mp4">
+</video>
+                <br>
+
                 <div class="mt-4 p-3 bg-yellow-100 border-2 border-black rounded-xl text-sm italic">
                     A proposta foi criar uma rede social funcional (CRUD) utilizando o framework Laravel.
                 </div>
             </div>
 
             <!-- CARD 2 -->
-            <div class="bg-white/95 border-4 border-black rounded-3xl p-6 shadow-[6px_6px_0px_black] flex flex-col items-center text-center">
+            <div class="bg-white/95 border-4 border-black rounded-3xl p-6 shadow-[6px_6px_0px_black] flex flex-col">
+                <h2 class="text-2xl font-black mb-4 text-pink-600 uppercase italic">Desenvolvedora</h2>
+                <br>
+                <img src="{{ asset('images/eu2.png') }}"
+                class="mx-auto w-32 h-32 border-4 border-black rounded-full mb-3 bg-white shadow-[4px_4px_0px_black] object-cover">
 
-                <img src="{{ asset('images/eu.png') }}"
-                     class="w-24 h-24 border-4 border-black rounded-full mb-3 bg-white shadow-[4px_4px_0px_black] object-cover">
+                <h2 class="text-2xl font-black uppercase italic text-center">Sofia Moura</h2>
 
-                <h2 class="text-2xl font-black uppercase italic">Sofia Moura</h2>
-
-                <p class="text-xs uppercase mb-4 text-black/50">
+                <p class="text-xs uppercase mb-4 text-black/50 text-center">
                     Desenvolvedora Web & Estudante
                 </p>
 
-                <p class="text-sm">
-                    Responsável por todo o design caótico e funcionalidade deste Chirper.
+                <p class="text-sm text-justify">
+                    Tenho 18 anos e gosto de criar coisas que misturam criatividade, estética e um toque de caos organizado.
+
+Responsável por todo o design caótico e funcionalidade deste Chirper (tive a ajudinha do GPT).
+
+Sempre explorando novas ideias e formas de expressão, seja no design, na tecnologia ou na arte.
+
                 </p>
             </div>
 
@@ -118,6 +133,10 @@
                 <p class="text-sm">
                     As funcionalidades de Likes e Comentários foram implementadas via AJAX.
                 </p>
+
+                 <img src="{{ asset('gif/kenny.gif') }}"
+     class="w-24 ml-auto mt-4">
+
             </div>
 
             <!-- CARD 4 -->
@@ -125,11 +144,11 @@
                 <h2 class="text-2xl font-black mb-4 text-green-600 uppercase italic">Estética</h2>
 
                 <p class="text-sm mb-3">
-                    A escolha de South Park foi baseada no estilo de animação de "recortes de papel".
+                    A escolha de South Park foi baseada no estilo louco da animação, por mais que possua muitas coisas erradas, consegue fazer muito de nós rirem.
                 </p>
 
                 <div class="rounded-lg overflow-hidden border-2 border-black h-24 bg-black">
-                    <img src="https://media.giphy.com/media/l0HlPtb36M3W2v2ak/giphy.gif"
+                    <img src="https://media.giphy.com/media/3o7TKUBkZ2xmlka4rm/giphy.gif"
                          class="w-full h-full object-cover opacity-80">
                 </div>
             </div>
