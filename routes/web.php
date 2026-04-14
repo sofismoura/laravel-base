@@ -12,19 +12,18 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Notification;
 
+// sobre
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-
-
+// perfil
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->middleware('auth');
 Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth');
 Route::delete('/profile/delete', [ProfileController::class, 'destroy']);
 
 
 //notificações
-// 🔔 LISTA DE NOTIFICAÇÕES
 Route::get('/notifications', function () {
     $notifications = \App\Models\Notification::with('fromUser')
         ->where('user_id', auth()->id())
@@ -35,7 +34,6 @@ Route::get('/notifications', function () {
 })->middleware('auth');
 
 
-// 🔔 CLICAR NA NOTIFICAÇÃO
 Route::get('/notifications/{id}', function ($id) {
 
     $notification = \App\Models\Notification::where('id', $id)
@@ -44,12 +42,12 @@ Route::get('/notifications/{id}', function ($id) {
 
     $notification->update(['read' => true]);
 
-    // 🔥 se for comentário → vai pro comentário
+    //  se for comentário → vai pro comentário
     if ($notification->type === 'comment' && $notification->comment_id) {
         return redirect('/#comment-' . $notification->comment_id);
     }
 
-    // 👍 se for like → vai pro post
+    // se for like → vai pro post
     return redirect('/#chirp-' . $notification->chirp_id);
 
 })->middleware('auth');
@@ -60,7 +58,7 @@ Route::post('/chirps/{chirp}/comment', [CommentController::class, 'store'])->mid
 //like
 Route::post('/chirps/{chirp}/like', [LikeController::class, 'toggle'])->middleware('auth');
 
-// Home
+// home
 Route::get('/', function () {
     $chirps = Chirp::with(['user', 'likes', 'comments.user'])->latest()->get();
     return view('home', compact('chirps'));
@@ -137,7 +135,7 @@ Route::post('/logout', function (Request $request) {
 });
 
 
-// chirps (posts)
+// chirps
 
 Route::post('/chirps', function (Request $request) {
 
@@ -146,23 +144,23 @@ Route::post('/chirps', function (Request $request) {
         return redirect('/login');
     }
 
-    // Validação atualizada para aceitar imagem
+    // validação atualizada para aceitar imagem
     $validated = $request->validate([
         'message' => 'required|max:255',
         'image' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:20480',
     ]);
 
-    // Lógica para salvar a imagem do post (usando a pasta photos que você já validou)
+    // lógica para salvar a imagem do post
     if ($request->hasFile('image')) {
         $path = $request->file('image')->store('photos', 'public');
         $validated['image'] = $path;
     }
 
-    // Criar o Chirp com os dados validados (incluindo a imagem se houver)
+    // cria o Chirp com os dados validados
     $request->user()->chirps()->create($validated);
 
     return redirect('/');
 });
 
-// Rota para excluir chirp
+// excluir chirp
 Route::delete('/chirps/{chirp}', [ChirpController::class, 'destroy'])->name('chirps.destroy')->middleware('auth');

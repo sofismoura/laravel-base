@@ -48,22 +48,22 @@ class User extends Authenticatable
     }
 
     public function chirps()
-{
-    return $this->hasMany(\App\Models\Chirp::class);
-}
+    {
+        return $this->hasMany(\App\Models\Chirp::class);
+    }
 
-public function likes()
-{
-    return $this->hasMany(\App\Models\Like::class);
-}
+    public function likes()
+    {
+        return $this->hasMany(\App\Models\Like::class);
+    }
 
-public function comments()
-{
-    return $this->hasMany(\App\Models\Comment::class);
-}
+    public function comments()
+    {
+        return $this->hasMany(\App\Models\Comment::class);
+    }
 
-public function notifications()
-{
-    return $this->hasMany(Notification::class);
-}
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 }

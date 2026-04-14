@@ -33,19 +33,14 @@ class ProfileController extends Controller
         return redirect('/')->with('success', 'Perfil atualizado!');
     }
 
-    // 🔥 NOVA FUNÇÃO
     public function destroy(Request $request)
     {
         $user = Auth::user();
 
-        // 🧨 deleta dados relacionados (ajuda a evitar erro)
         $user->chirps()->delete();
         $user->comments()->delete();
-
-        // 🔥 deleta a conta
         $user->delete();
 
-        // 🚪 desloga
         Auth::logout();
 
         return redirect('/')->with('success', 'Conta deletada com sucesso');

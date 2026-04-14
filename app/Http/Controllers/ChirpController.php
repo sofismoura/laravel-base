@@ -22,7 +22,6 @@ class ChirpController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Usando a pasta 'photos' que você sabe que funciona
             $path = $request->file('image')->store('photos', 'public');
             $validated['image'] = $path;
         }
